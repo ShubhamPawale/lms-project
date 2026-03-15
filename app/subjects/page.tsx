@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { getCurrentUserFromAccessToken } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
 export default async function SubjectsPage() {
   const user = await getCurrentUserFromAccessToken();
 

@@ -6,6 +6,7 @@ import { tree } from "@/workflows/subjects";
 import { get as getVideo } from "@/workflows/videos";
 import { update as updateProgress } from "@/workflows/progress";
 import YouTubePlayer from "@/components/YouTubePlayer";
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: { slug: string; videoId: string };
