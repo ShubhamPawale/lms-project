@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  enrollments Enrollment[]
+  progress    VideoProgress[]
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Subject {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  description String
+  difficulty  Difficulty @default(MEDIUM)
+  isPublished Boolean   @default(false)
+  priceCents  Int       @default(0)
+  thumbnailKey String?  @default("default")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  sections    Section[]
+  enrollments Enrollment[]
+}
+
+model Section {
+  id          Int       @id @default(autoincrement())
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subjectId   Int
+  title       String
+  orderIndex  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  videos      Video[]
+
+  @@index([subjectId, orderIndex])
+}
+
+model Video {
+  id              Int             @id @default(autoincrement())
+  section         Section         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId       Int
+  title           String
+  description     String
+  youtubeVideoId  String
+  videoUrl        String?
+  orderIndex      Int
+  durationSeconds Int
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  progress        VideoProgress[]
+
+  @@index([sectionId, orderIndex])
+}
+
+model Enrollment {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subjectId Int
+  createdAt DateTime @default(now())
+
+  @@id([userId, subjectId])
+}
+
+model VideoProgress {
+  user                User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              Int
+  video               Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId             Int
+  lastPositionSeconds Int    @default(0)
+  isCompleted         Boolean @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@id([userId, videoId])
+}
+
