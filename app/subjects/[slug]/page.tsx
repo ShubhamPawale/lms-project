@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getCurrentUserFromAccessToken } from "@/lib/auth";
 import { tree } from "@/workflows/subjects";
 
+export const dynamic = 'force-dynamic';
+
 type Props = {
   params: { slug: string };
 };
