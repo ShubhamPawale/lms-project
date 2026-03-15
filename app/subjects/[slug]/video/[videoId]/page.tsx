@@ -18,7 +18,7 @@ export default async function LearningViewPage({ params }: Props) {
   }
 
   const subject = await db.subject.findUnique({
-    where: { slug: params.slug }
+    where: { slug: params.slug },
   });
   if (!subject || !subject.isPublished) {
     notFound();
@@ -29,14 +29,14 @@ export default async function LearningViewPage({ params }: Props) {
     where: {
       userId_subjectId: {
         userId: user.id,
-        subjectId: subject.id
-      }
+        subjectId: subject.id,
+      },
     },
     update: {},
     create: {
       userId: user.id,
-      subjectId: subject.id
-    }
+      subjectId: subject.id,
+    },
   });
 
   const videoId = Number(params.videoId);
@@ -68,11 +68,20 @@ export default async function LearningViewPage({ params }: Props) {
 
   const progress = videoInfo.progress;
 
+  // Cleaned and fixed handleCompleted function
   async function handleCompleted() {
     "use server";
+
+    if (!subject) {
+      // Subject is null, redirect to homepage
+      redirect(`/`);
+    }
+
     if (next) {
+      // Go to next video
       redirect(`/subjects/${subject.slug}/video/${next.id}`);
     } else {
+      // No next video, go back to subject overview
       redirect(`/subjects/${subject.slug}`);
     }
   }
@@ -98,9 +107,7 @@ export default async function LearningViewPage({ params }: Props) {
             initialPositionSeconds={progress.lastPositionSeconds}
             durationSeconds={videoInfo.video.durationSeconds}
             userId={user.id}
-            nextVideoUrl={
-              next ? `/subjects/${subject.slug}/video/${next.id}` : null
-            }
+            nextVideoUrl={next ? `/subjects/${subject.slug}/video/${next.id}` : null}
             updateProgress={updateProgress}
           />
         </div>
@@ -133,8 +140,7 @@ export default async function LearningViewPage({ params }: Props) {
         <div className="outline-header">
           <span className="outline-title">Course content</span>
           <span className="outline-subtitle">
-            {allVideos.filter((v) => v.completed).length} of {allVideos.length}{" "}
-            completed
+            {allVideos.filter((v) => v.completed).length} of {allVideos.length} completed
           </span>
         </div>
         <div className="outline-body">
@@ -152,11 +158,7 @@ export default async function LearningViewPage({ params }: Props) {
                 return (
                   <Link
                     key={video.id}
-                    href={
-                      locked
-                        ? "#"
-                        : `/subjects/${subject.slug}/video/${video.id}`
-                    }
+                    href={locked ? "#" : `/subjects/${subject.slug}/video/${video.id}`}
                     className={baseClass}
                   >
                     <div className="outline-item-left">
@@ -184,4 +186,3 @@ export default async function LearningViewPage({ params }: Props) {
     </div>
   );
 }
-
